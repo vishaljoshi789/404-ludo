@@ -119,8 +119,12 @@ let rolldice = () => {
     else if(dice_number==4) dice_img = "4.gif";
     else if(dice_number==5) dice_img = "5.gif";
     else if(dice_number==6) dice_img = "6.gif";
+    let dice_att = new Image();
+    dice_att.src = `images/${dice_img}?`+ new Date().getTime();
+    dice_att.width = 200;
+    dice_att.height = 200;
     document.querySelector(`#dice-number`).innerHTML = "";
-    document.querySelector(`#dice-number`).innerHTML = `<img src="images/${dice_img}" height=200 width=200 >`;
+    document.querySelector(`#dice-number`).appendChild(dice_att);
 }
 dice.addEventListener("click", () => {
     rolldice();
