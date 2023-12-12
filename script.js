@@ -127,8 +127,8 @@ let rolldice = () => {
     document.querySelector(`#dice-number`).appendChild(dice_att);
 }
 dice.addEventListener("click", () => {
+    if(checkPlay()==4||dice_number!=6) {change_turn();};
     rolldice();
-    if(checkPlay()==4&&dice_number!=6) change_turn();
 })
 
 let checkPlay = () => {
@@ -189,8 +189,8 @@ let initialcoinReplacer = (e, initial) => {
                             coinEventAdderFun(child)
                         }
                     }
-                    if(dice_number!=6)        
-                    change_turn();
+                    // if(dice_number!=6)        
+                    // change_turn();
                 }
             } catch (error) {
                 console.log(error)
