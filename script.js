@@ -73,20 +73,20 @@ let greenVictoryPath = ["22", "25", "28", "211", "214", "217", "216", "213", "21
 let safeBoxes = ["06", "111", "36", "211", "05", "35", "112", "212"]
 
 blueVictoryPath.forEach((e, i) => {
-    if(i>6)
-    document.querySelector(`#path-box-${e}`).classList.add("bg-blue-400");
+    if (i > 6)
+        document.querySelector(`#path-box-${e}`).classList.add("bg-blue-400");
 })
 yellowVictoryPath.forEach((e, i) => {
-    if(i>6)
-    document.querySelector(`#path-box-${e}`).classList.add("bg-yellow-400");
+    if (i > 6)
+        document.querySelector(`#path-box-${e}`).classList.add("bg-yellow-400");
 })
 redVictoryPath.forEach((e, i) => {
-    if(i>6)
-    document.querySelector(`#path-box-${e}`).classList.add("bg-red-400");
+    if (i > 6)
+        document.querySelector(`#path-box-${e}`).classList.add("bg-red-400");
 })
 greenVictoryPath.forEach((e, i) => {
-    if(i>6)
-    document.querySelector(`#path-box-${e}`).classList.add("bg-green-400");
+    if (i > 6)
+        document.querySelector(`#path-box-${e}`).classList.add("bg-green-400");
 })
 
 
@@ -111,30 +111,35 @@ let turn_id = "playerarea1"
 // dice roll event 
 
 let rolldice = () => {
-    dice_number = Math.floor(Math.random() * 6) + 1;
+    let dice_list = [1, 1, 2, 3, 4, 5, 6, 6, 6, 6]
+    dice_number = Math.floor(Math.random() * 9);
+    dice_number = dice_list[dice_number]
+    // console.log(dice_number)
     let dice_img = "";
-    if(dice_number==1) dice_img = "1.gif";
-    else if(dice_number==2) dice_img = "2.gif";
-    else if(dice_number==3) dice_img = "3.gif";
-    else if(dice_number==4) dice_img = "4.gif";
-    else if(dice_number==5) dice_img = "5.gif";
-    else if(dice_number==6) dice_img = "6.gif";
+    if (dice_number == 1) dice_img = "1.gif";
+    else if (dice_number == 2) dice_img = "2.gif";
+    else if (dice_number == 3) dice_img = "3.gif";
+    else if (dice_number == 4) dice_img = "4.gif";
+    else if (dice_number == 5) dice_img = "5.gif";
+    else if (dice_number == 6) dice_img = "6.gif";
     let dice_att = new Image();
-    dice_att.src = `images/${dice_img}?`+ new Date().getTime();
+    dice_att.src = `images/${dice_img}?` + new Date().getTime();
     dice_att.width = 200;
     dice_att.height = 200;
     document.querySelector(`#dice-number`).innerHTML = "";
     document.querySelector(`#dice-number`).appendChild(dice_att);
 }
+let isMoved = false;
 dice.addEventListener("click", () => {
-    if(checkPlay()==4||dice_number!=6) {change_turn();};
+    if (checkPlay() == 4 || dice_number != 6) { change_turn(); };
+    isMoved = false;
     rolldice();
 })
 
 let checkPlay = () => {
     let count = 0;
-    for(let i = 0; i<document.querySelector(`.${turn_id}`).children.length; i++) {
-        if(document.querySelector(`.${turn_id}`).children[i].children.length>0) count++;
+    for (let i = 0; i < document.querySelector(`.${turn_id}`).children.length; i++) {
+        if (document.querySelector(`.${turn_id}`).children[i].children.length > 0) count++;
     }
     return count;
 }
@@ -142,67 +147,71 @@ let checkPlay = () => {
 document.getElementsByClassName(turn_id)[0].style.border = "10px solid black"
 let change_turn = () => {
     document.getElementsByClassName(turn_id)[0].style.border = "none"
-    if(turn_id == "playerarea1"){
+    if (turn_id == "playerarea1") {
         turn_id = "playerarea2";
         turn = "blue";
-    }else if(turn_id == "playerarea2"){
+    } else if (turn_id == "playerarea2") {
         turn_id = "playerarea4";
         turn = "yellow";
-    }else if(turn_id == "playerarea4"){
+    } else if (turn_id == "playerarea4") {
         turn_id = "playerarea3";
         turn = "red";
-    }else if(turn_id == "playerarea3"){
+    } else if (turn_id == "playerarea3") {
         turn_id = "playerarea1";
         turn = "green";
-    }document.getElementsByClassName(turn_id)[0].style.border = "10px solid black"
+    } document.getElementsByClassName(turn_id)[0].style.border = "10px solid black"
 }
 
 
 let initialcoinReplacer = (e, initial) => {
-        let child = ""
-            try {
-                if(e.parentNode.classList.contains("coin-container")&&(dice_number == 6)) {
-                    child = document.querySelector(`#path-box-${initial}`).appendChild(e.cloneNode(true))
-                    e.parentNode.removeChild(e)        
+    let child = ""
+    try {
+        if (!isMoved) {
+            // console.log(isMoved)
+            if (e.parentNode.classList.contains("coin-container") && (dice_number == 6)) {
+                child = document.querySelector(`#path-box-${initial}`).appendChild(e.cloneNode(true))
+                e.parentNode.removeChild(e)
+                coinEventAdderFun(child)
+
+            } else if (e.parentNode.classList.contains("pathCell")) {
+                let box_id = e.parentNode.id.slice(9, e.parentNode.id.length);
+                let turn_coin = [];
+                if (e.classList.contains("greencoin")) turn_coin = greenVictoryPath;
+                else if (e.classList.contains("redcoin")) turn_coin = redVictoryPath;
+                else if (e.classList.contains("yellowcoin")) turn_coin = yellowVictoryPath;
+                else if (e.classList.contains("bluecoin")) turn_coin = blueVictoryPath;
+                if (!turn_coin.includes(box_id)) {
+                    let new_box_id = coinPath[(coinPath.indexOf(box_id) + dice_number) % coinPath.length];
+                    child = document.querySelector(`#path-box-${new_box_id}`).appendChild(e.cloneNode(true))
+                    e.parentNode.removeChild(e)
                     coinEventAdderFun(child)
-    
-                }else if(e.parentNode.classList.contains("pathCell")) {
-                    let box_id = e.parentNode.id.slice(9, e.parentNode.id.length);
-                    let turn_coin = [];
-                    if(e.classList.contains("greencoin")) turn_coin = greenVictoryPath;
-                    else if(e.classList.contains("redcoin")) turn_coin = redVictoryPath;
-                    else if(e.classList.contains("yellowcoin")) turn_coin = yellowVictoryPath;
-                    else if(e.classList.contains("bluecoin")) turn_coin = blueVictoryPath;
-                    if(!turn_coin.includes(box_id)){
-                        let new_box_id = coinPath[(coinPath.indexOf(box_id)+dice_number)%coinPath.length];
-                        child = document.querySelector(`#path-box-${new_box_id}`).appendChild(e.cloneNode(true))
-                        e.parentNode.removeChild(e)        
+                }
+                else {
+                    if ((turn_coin.indexOf(box_id) + dice_number) < turn_coin.length) {
+                        let new_box_id = turn_coin[(turn_coin.indexOf(box_id) + dice_number)];
+                        if (new_box_id != "win") {
+                            child = document.querySelector(`#path-box-${new_box_id}`).appendChild(e.cloneNode(true))
+                        }
+                        e.parentNode.removeChild(e)
                         coinEventAdderFun(child)
                     }
-                    else{
-                        if((turn_coin.indexOf(box_id)+dice_number)<turn_coin.length){
-                            let new_box_id = turn_coin[(turn_coin.indexOf(box_id)+dice_number)];
-                            if(new_box_id != "win"){
-                                child = document.querySelector(`#path-box-${new_box_id}`).appendChild(e.cloneNode(true))
-                            }
-                            e.parentNode.removeChild(e)
-                            coinEventAdderFun(child)
-                        }
-                    }
-                    // if(dice_number!=6)        
-                    // change_turn();
                 }
-            } catch (error) {
-                console.log(error)
+                // if(dice_number!=6)        
+                // change_turn();
             }
-            
-    
+            isMoved = true;
+        }
+    } catch (error) {
+        console.log(error)
+    }
+
+
 }
 
 let coinOpenCheck = (e) => {
-    if(e.parentNode.classList.contains("coin-container")){
+    if (e.parentNode.classList.contains("coin-container")) {
         return 1;
-    }return 0;
+    } return 0;
 }
 let greenInitial = "212";
 let blueInitial = "05";
@@ -212,19 +221,19 @@ let yellowInitial = "35";
 let coinEventAdderFun = (e) => {
     e.addEventListener("click", () => {
 
-        if(e.classList.contains("greencoin")&&turn == "green") {
-            
-             initialcoinReplacer(e, greenInitial)
-        }
-        else if (e.classList.contains("bluecoin")&&turn == "blue") {
-             initialcoinReplacer(e, blueInitial)
-        }
-        else if (e.classList.contains("redcoin")&&turn == "red") {
+        if (e.classList.contains("greencoin") && turn == "green") {
 
-             initialcoinReplacer(e, redInitial)
+            initialcoinReplacer(e, greenInitial)
         }
-        else if (e.classList.contains("yellowcoin")&&turn == "yellow") {
-             initialcoinReplacer(e, yellowInitial)
+        else if (e.classList.contains("bluecoin") && turn == "blue") {
+            initialcoinReplacer(e, blueInitial)
+        }
+        else if (e.classList.contains("redcoin") && turn == "red") {
+
+            initialcoinReplacer(e, redInitial)
+        }
+        else if (e.classList.contains("yellowcoin") && turn == "yellow") {
+            initialcoinReplacer(e, yellowInitial)
         }
     })
 }
@@ -233,20 +242,13 @@ let coinEventAdderFun = (e) => {
 let coinEventAdder = () => {
     document.querySelectorAll(".coin").forEach((e) => {
         coinEventAdderFun(e);
-       
+
     })
-};coinEventAdder()
+}; coinEventAdder()
 
 
 
 document.body.style.zoom = 1;
-
-
-
-
-
-
-
 middleArea.style.height = "34%";
 
 document.getElementById("path-box-win").style.background = "black";
